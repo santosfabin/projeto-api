@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 const port = config.PORT;
 const cookieParser = require("cookie-parser");
-const User = require("./models/User")
+const User = require("./models/User");
 const permissionVerify = require("./routes/permissionVerify");
 const {isAdmin} = require("./routes/activityRouter"); //added the isAdmin function
 
@@ -28,12 +28,13 @@ const appPage = require("./pages/app");
 app.get("/app", permissionVerify, appPage); //added the permissionVerify
 
 //create activity page
-const {createActivityPage} = require('./pages/createActivity'); //added {}
-app.get('/createActivity', permissionVerify, async (req, res) => { //removed the isAdmin function
-    if(!await isAdmin(req.user.id)){
-        return res.redirect('/app') // changed to /app
-    }
-    res.send(createActivityPage());
+const {createActivityPage} = require("./pages/createActivity"); //added {}
+app.get("/createActivity", permissionVerify, async (req, res) => {
+	//removed the isAdmin function
+	if (!(await isAdmin(req.user.id))) {
+		return res.redirect("/app"); // changed to /app
+	}
+	res.send(createActivityPage());
 });
 
 // rotas
@@ -42,8 +43,8 @@ app.use("/", routes); //changed to '/'
 
 //404 page
 app.use((req, res) => {
-    res.status(404).send('404 - Not Found');
-  });
+	res.status(404).send("404 - Not Found");
+});
 
 const initUsers = async () => {
 	console.log("init users");
@@ -51,6 +52,6 @@ const initUsers = async () => {
 };
 
 app.listen(port, async () => {
-	await initUsers()
+	await initUsers();
 	console.log(`Servidor rodando na porta ${port}`);
 });

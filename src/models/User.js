@@ -40,10 +40,10 @@ class User {
         return user ? user.isAdmin : false;
     }
     static async createAdminIfNotExists() {
-        const adminExists = users.some(user => user.isAdmin); //add again
-        if (!adminExists) { //add again
+        const adminExists = users.some(user => user.isAdmin);
+        if (!adminExists) {
             try {
-                await this.create('fabiano', 'fabiano@admin.com', 'fabiano123', true); // change the values, and added email
+                await this.create('fabiano', 'fabiano@admin.com', 'fabiano123', true);
                 console.log('Admin user created.');
             } catch (error) {
                 console.error('Error creating admin user:', error.message);
