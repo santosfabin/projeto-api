@@ -1,9 +1,12 @@
-// src/routes/loginRouter.js
-const express = require('express');
-const loginRouter = express.Router();
-const loginController = require('../controllers/loginController');
+const express = require("express");
+const router = express.Router();
+const loginController = require("../controllers/loginController");
+const permissionVerify = require("./permissionVerify");
 
-loginRouter.post('/', loginController.autenticate);
-loginRouter.get('/', loginController.getLogin)
+router.post("/", loginController.autenticate);
 
-module.exports = loginRouter;
+router.use(permissionVerify)
+
+router.get("/", loginController.getLogin);
+
+module.exports = router;

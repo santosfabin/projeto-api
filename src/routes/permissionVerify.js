@@ -1,20 +1,31 @@
-// src/routes/permissionVerify.js
-const jwt = require('jsonwebtoken');
-const config = require('../config');
+const {SECRET_KEY} = require("../config");
+const jwt = require("jsonwebtoken");
 
 function permissionVerify(req, res, next) {
-  const token = req.cookies.session_id;
-  if (!token) {
-    return res.status(401).json({ error: 'Token JWT ausente' });
-  }
+	// verificar se o cookie se session_id está presente na requisição
+	const sessionToken = req.cookies.session_id;
 
-  try {
-    const decoded = jwt.verify(token, config.SECRET_KEY);
-    req.user = decoded.user; //changed to user
-    next();
-  } catch (error) {
-    return res.status(401).json({ error: 'Token JWT inválido' });
-  }
+	if (!sessionToken) {
+		// res.status(401).json({error: "Token JWT ausente"});
+		res.redirect("/");
+		return;
+	}
+
+	jwt.verify(sessionToken, SECRET_KEY, (err, decoded) => {
+		if (err) {
+			// res.status(401).json({error: "Token JWT inválido"});
+			res.redirect("/");
+			return;
+		} else {
+			// o token é válido podemos acessar as informações decodificadas
+
+			// armazena as informações do usuário decodidficadas no objeto req
+			req.user = decoded.user;
+
+			// passa a requisição para o próximo middleware ou rota
+			next();
+		}
+	});
 }
 
 module.exports = permissionVerify;

@@ -1,15 +1,11 @@
-// src/routes/index.js
-const express = require('express');
-const router = express.Router();
-const userRouter = require('./userRouter');
-const loginRouter = require('./loginRouter');
-const {activityRouter} = require('./activityRouter'); //only activityRouter
-const logoutRouter = require('./logoutRouter')
-const permissionVerify = require('./permissionVerify');
+const express = require('express')
+const router = express.Router()
+const userRouter = require('./userRouter')
+const loginRouter = require('./loginRouter')
+const logout = require('./logout')
 
-router.use('/api/users', userRouter);
-router.use('/api/login', loginRouter);
-router.use('/api/activities', permissionVerify, activityRouter); //added the middleware
-router.use('/logout', logoutRouter);
+router.use('/users', userRouter)
+router.use('/login', loginRouter)
+router.use('/logout', logout)
 
-module.exports = router;
+module.exports = router

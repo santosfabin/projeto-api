@@ -15,10 +15,10 @@ function createPage() {
                     <label for="username">Username:</label>
                     <input type="text" id="username" name="username" required />
                 </div>
-                 <div>
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" required />
-                </div>
+                    <div>
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required />
+                    </div>
                 <div>
                     <label for="password">Password:</label>
                     <input type="password" id="password" name="password" required />
@@ -27,7 +27,7 @@ function createPage() {
                 <button type="submit">Create User</button>
             </form>
             <p>
-              <a href="/">Back to Login</a>
+                <a href="/">Voltar para Login</a>
             </p>
             <script>
                 document
@@ -53,12 +53,12 @@ function createPage() {
                         }
 
                         try {
-                            const response = await fetch("/api/users", {
+                            const response = await fetch("/users", {
                                 method: "POST",
                                 headers: {
                                     "Content-Type": "application/json",
                                 },
-                                body: JSON.stringify({ username, password, email }), //add email
+                                body: JSON.stringify({ username, email, password }),
                             });
 
                             const data = await response.json();

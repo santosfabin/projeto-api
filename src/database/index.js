@@ -1,15 +1,30 @@
-// const { default: RocksDB } = require("@salto-io/rocksdb");
 const RocksDB = require("@salto-io/rocksdb");
 const path = require("path");
 
 class Database {
 	constructor(dbName) {
 		this.dbPath = path.resolve(__dirname, "../../db_data", dbName);
-		this.db = null;
+		this._openCallbacks = []; // Array para armazenar as callbacks
 		this.open(e => {
 			if (e) {
 				console.error("Erro ao abrir o banco de dados:", e);
-			}
+				// Chame as callbacks com o erro, se houver
+				this._openCallbacks.forEach(cb => cb(e));
+				this._openCallbacks = []; // Limpa as callbacks
+				return;
+			} 	
+
+			// // apagando o banco de dados
+			// this.db.clear(() => {
+			// 	// Banco aberto com sucesso, execute as callbacks
+			// 	this._openCallbacks.forEach(cb => cb());
+			// 	this._openCallbacks = []; // Limpa as callbacks
+			// });
+
+
+			// sem apagar o banco de dados
+			this._openCallbacks.forEach(cb => cb());
+			this._openCallbacks = []; // Limpa as callbacks
 		});
 	}
 
@@ -20,7 +35,12 @@ class Database {
 
 	close(callback) {
 		if (this.db) {
-			this.db.close(callback);
+			this.db.close(err => {
+				if (err) {
+					console.error("Erro ao fechar o banco de dados:", err);
+				}
+				callback(err);
+			});
 		}
 	}
 
@@ -31,13 +51,13 @@ class Database {
 
 		const data = [];
 
-		iterator = this.db.iterator({});
+		const iterator = this.db.iterator({});
 
 		const loop = () => {
 			iterator.next((error, key, value) => {
-				if (err) {
+				if (error) {
 					iterator.end(() => {
-						callback(err);
+						callback(error); // Corrigido: use 'error' aqui
 					});
 					return;
 				}
@@ -65,10 +85,20 @@ class Database {
 	}
 
 	get(key, callback) {
-		if (!this.bd) {
+		if (!this.db) {
 			return callback(new Error("O banco de dados não está aberto"));
 		}
+
 		this.db.get(key, callback);
+	}
+
+	onOpen(callback) {
+		if (this.db && this.db.isOpen) {
+			//Verifica se isOpen é true, senao adiciona o callback no array
+			callback(); // Se já estiver aberto, executa imediatamente
+		} else {
+			this._openCallbacks.push(callback);
+		}
 	}
 }
 
