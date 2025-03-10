@@ -1,6 +1,9 @@
 const express = require("express");
 const app = express();
-const port = 3003; // ou de acordo com seu arquivo de config
+const config = require("./config");
+
+// Usando a porta configurada
+const port = config.PORT;
 const cookieParser = require("cookie-parser");
 const permissionVerify = require("./routes/permissionVerify");
 
