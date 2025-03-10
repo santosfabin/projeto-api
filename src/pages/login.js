@@ -77,6 +77,12 @@ const loginContent = `
         a:hover {
             color: #4CAF50;
         }
+
+        #error-message {
+            color: red;
+            font-weight: bold;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -86,12 +92,15 @@ const loginContent = `
         <input type="password" name="password" placeholder="Senha" required>
         <button type="submit">Entrar</button>
     </form>
+    <div id="error-message"></div>
     <p>
         <a href="/createUser">Criar Usuário</a>
     </p>
 
     <script>
         const form = document.querySelector('form');
+        const errorMessageDiv = document.getElementById('error-message');
+
         form.addEventListener('submit', async (event) => {
             event.preventDefault();
             const email = form.email.value;
@@ -105,8 +114,8 @@ const loginContent = `
             });
             const data = await response.json();
             if (data.error) {
-                alert(data.error);
-                document.cookie = "";
+                errorMessageDiv.innerText = data.error;
+                document.cookie = ""; // Limpa o cookie
             } else {
                 window.location.href = '/app';
             }
@@ -114,6 +123,7 @@ const loginContent = `
     </script>
 </body>
 </html>
+
 `;
 
 function loginPage(req, res) {

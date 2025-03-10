@@ -64,15 +64,15 @@ function createPage() {
             <form id="createUserForm">
                 <div>
                     <label for="username">Username:</label>
-                    <input type="text" id="username" name="username" required />
+                    <input type="text" id="username" name="username" />
                 </div>
                 <div>
                     <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" required />
+                    <input type="email" id="email" name="email" />
                 </div>
                 <div>
                     <label for="password">Password:</label>
-                    <input type="password" id="password" name="password" required />
+                    <input type="password" id="password" name="password" />
                 </div>
                 <div id="message"></div>
                 <button type="submit">Create User</button>
