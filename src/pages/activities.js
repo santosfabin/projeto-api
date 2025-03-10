@@ -1,21 +1,93 @@
 const activitiesPageContent = `
-<html>
+<html lang="pt-br">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Atividades</title>
     <style>
-        .activity {
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin: 10px 0;
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
         }
+
+        h1 {
+            color: #4CAF50;
+            font-size: 2.5rem;
+            margin-top: 30px;
+        }
+
+        #activities-list {
+            width: 100%;
+            max-width: 900px;
+            margin: 20px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .activity {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
         .activity h3 {
             margin: 0;
+            font-size: 1.8rem;
+            color: #333;
         }
+
         .activity p {
-            margin: 5px 0;
+            margin: 10px 0;
+            color: #555;
         }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
         #loader {
             text-align: center;
+            font-size: 1.2rem;
+            color: #777;
+        }
+
+        a {
+            color: #2196F3;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        a:hover {
+            color: #4CAF50;
+        }
+
+        p {
+            font-size: 1rem;
         }
     </style>
 </head>
@@ -27,6 +99,7 @@ const activitiesPageContent = `
     <p>
         <a href="/app">Voltar para a página inicial</a>
     </p>
+
     <script>
         document.addEventListener("DOMContentLoaded", async function() {
     try {

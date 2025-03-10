@@ -139,38 +139,48 @@ const unenrollFromActivity = (req, res) => {
 
 	// Encontra a atividade pela ID
 	activityDb.readAllData((err, data) => {
-    if (err) {
-        return res.status(500).json({error: "Erro ao acessar o banco de dados de atividades"});
-    }
+		if (err) {
+			return res
+				.status(500)
+				.json({error: "Erro ao acessar o banco de dados de atividades"});
+		}
 
-    // Procura pela atividade desejada
-    const activity = data.find(item => JSON.parse(item.value).activityId === activityId);
+		// Procura pela atividade desejada
+		const activity = data.find(
+			item => JSON.parse(item.value).activityId === activityId
+		);
 
-    if (!activity) {
-        return res.status(404).json({error: "Atividade não encontrada"});
-    }
+		if (!activity) {
+			return res.status(404).json({error: "Atividade não encontrada"});
+		}
 
-    const activityObj = JSON.parse(activity.value);
+		const activityObj = JSON.parse(activity.value);
 
-    // Verifica se o usuário está inscrito
-    const participantIndex = activityObj.participants.indexOf(userKey);
-    if (participantIndex === -1) {
-        return res.status(400).json({error: "Você não está inscrito nessa atividade"});
-    }
+		// Verifica se o usuário está inscrito
+		const participantIndex = activityObj.participants.indexOf(userKey);
+		if (participantIndex === -1) {
+			return res
+				.status(400)
+				.json({error: "Você não está inscrito nessa atividade"});
+		}
 
-    // Remove o usuário da lista de participantes
-    activityObj.participants.splice(participantIndex, 1);
+		// Remove o usuário da lista de participantes
+		activityObj.participants.splice(participantIndex, 1);
 
-    // Atualiza a atividade no banco de dados
-    activityDb.put(activityId, JSON.stringify(activityObj), err => {
-        if (err) {
-            return res.status(500).json({error: "Erro ao atualizar a atividade"});
-        }
+		// Atualiza a atividade no banco de dados
+		activityDb.put(activityId, JSON.stringify(activityObj), err => {
+			if (err) {
+				return res.status(500).json({error: "Erro ao atualizar a atividade"});
+			}
 
-        res.status(200).json({message: "Desinscrição realizada com sucesso!", activity: activityObj});
-    });
-});
-
+			res
+				.status(200)
+				.json({
+					message: "Desinscrição realizada com sucesso!",
+					activity: activityObj
+				});
+		});
+	});
 };
 
 // Função para remover atividades expiradas
