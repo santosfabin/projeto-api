@@ -138,25 +138,39 @@ const unenrollFromActivity = (req, res) => {
 	const userKey = `user_${req.user.email}`; // Chave do usuário autenticado
 
 	// Encontra a atividade pela ID
-	const activity = activityDb.find(activity => activity.id === activityId);
+	activityDb.readAllData((err, data) => {
+    if (err) {
+        return res.status(500).json({error: "Erro ao acessar o banco de dados de atividades"});
+    }
 
-	if (!activity) {
-		return res.status(404).json({error: "Atividade não encontrada"});
-	}
+    // Procura pela atividade desejada
+    const activity = data.find(item => JSON.parse(item.value).activityId === activityId);
 
-	// Verifica se o usuário está inscrito na atividade
-	const participantIndex = activity.participants.indexOf(userKey);
-	if (participantIndex === -1) {
-		return res
-			.status(400)
-			.json({error: "Você não está inscrito nessa atividade"});
-	}
+    if (!activity) {
+        return res.status(404).json({error: "Atividade não encontrada"});
+    }
 
-	// Remove o usuário da lista de participantes
-	activity.participants.splice(participantIndex, 1);
-	res
-		.status(200)
-		.json({message: "Desinscrição realizada com sucesso", activity});
+    const activityObj = JSON.parse(activity.value);
+
+    // Verifica se o usuário está inscrito
+    const participantIndex = activityObj.participants.indexOf(userKey);
+    if (participantIndex === -1) {
+        return res.status(400).json({error: "Você não está inscrito nessa atividade"});
+    }
+
+    // Remove o usuário da lista de participantes
+    activityObj.participants.splice(participantIndex, 1);
+
+    // Atualiza a atividade no banco de dados
+    activityDb.put(activityId, JSON.stringify(activityObj), err => {
+        if (err) {
+            return res.status(500).json({error: "Erro ao atualizar a atividade"});
+        }
+
+        res.status(200).json({message: "Desinscrição realizada com sucesso!", activity: activityObj});
+    });
+});
+
 };
 
 // Função para remover atividades expiradas
