@@ -1,6 +1,7 @@
 const db = require("../db");
 const hashPassword = require("../utils/hashPassword");
 const loginController = require("./loginController");
+require("dotenv").config();
 
 
 // Função para obter todos os usuários
@@ -94,49 +95,52 @@ const deleteUser = (req, res) => {
 // criação de 2 usuarios
 // Função para criar usuários iniciais (admin e comum)
 const createInitialUsers = async () => {
-	const adminEmail = "fabiano@gmail.com";
-	const commonEmail = "vitoria@gmail.com";
+  const adminEmail = "fabiano@gmail.com";
+  const commonEmail = "vitoria@gmail.com";
 
-	// console.log(1); // Deve aparecer no console se a função for chamada corretamente
+  // Senhas retiradas do .env
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  const commonPassword = process.env.COMMON_PASSWORD;
 
-	// Verifica se o admin já existe
-	db().get(`user_${adminEmail}`, async (err, adminData) => {
-		if (err || !adminData) {
-			const hashedAdminPassword = await hashPassword("fabiano123");
-			const adminUser = {
-				username: "fabiano",
-				email: adminEmail,
-				password: hashedAdminPassword,
-				isAdmin: true
-			};
-			db().put(`user_${adminEmail}`, JSON.stringify(adminUser), err => {
-				if (err) {
-					console.log("Erro ao criar usuário admin:", err);
-				} else {
-					console.log("Usuário admin criado com sucesso!");
-				}
-			});
-		}
-	});
+  // Verifica se o admin já existe
+  db().get(`user_${adminEmail}`, async (err, adminData) => {
+    if (err || !adminData) {
+      const hashedAdminPassword = await hashPassword(adminPassword);
+      const adminUser = {
+        username: "fabiano",
+        email: adminEmail,
+        password: hashedAdminPassword,
+        isAdmin: true
+      };
+      db().put(`user_${adminEmail}`, JSON.stringify(adminUser), err => {
+        if (err) {
+          console.log("Erro ao criar usuário admin:", err);
+        } else {
+          console.log("Usuário admin criado com sucesso!");
+        }
+      });
+    }
+  });
 
-	db().get(`user_${commonEmail}`, async (err, commonData) => {
-		if (err || !commonData) {
-			const hashedCommonPassword = await hashPassword("vitoria123");
-			const commonUser = {
-				username: "vitoria",
-				email: commonEmail,
-				password: hashedCommonPassword,
-				isAdmin: false
-			};
-			db().put(`user_${commonEmail}`, JSON.stringify(commonUser), err => {
-				if (err) {
-					console.log("Erro ao criar usuário comum:", err);
-				} else {
-					console.log("Usuário comum criado com sucesso!");
-				}
-			});
-		}
-	});
+  // Criação do usuário comum
+  db().get(`user_${commonEmail}`, async (err, commonData) => {
+    if (err || !commonData) {
+      const hashedCommonPassword = await hashPassword(commonPassword);
+      const commonUser = {
+        username: "vitoria",
+        email: commonEmail,
+        password: hashedCommonPassword,
+        isAdmin: false
+      };
+      db().put(`user_${commonEmail}`, JSON.stringify(commonUser), err => {
+        if (err) {
+          console.log("Erro ao criar usuário comum:", err);
+        } else {
+          console.log("Usuário comum criado com sucesso!");
+        }
+      });
+    }
+  });
 };
 
 module.exports = {
