@@ -5,56 +5,13 @@ const activityDb = require("../activityDb");
 
 const {SECRET_KEY} = require("../config");
 const jwt = require("jsonwebtoken");
-// const {compare} = require("bcrypt");
-
-// let loginUsers = [
-// 	{
-// 		"username": "santos",
-// 		"name": "Fabiano Santos",
-// 		"password": "santos123",
-// 		"isAdmin": ["admin", "user"]
-// 	},
-// 	{
-// 		"username": "vitoria",
-// 		"name": "Vitoria",
-// 		"password": "654321",
-// 		"isAdmin": true
-// 	}
-// ];
-
-// async function createAdminUser() {
-// 	const username = "fabiano";
-// 	const email = "fabiano@gmail.com";
-// 	const password = await hashPassword("fabiano123");
-// 	const isAdmin = true;
-// 	return {username, email, password, isAdmin};
-// }
-
-// async function createCommonUser() {
-// 	const username = "vitoria";
-// 	const email = "vitoria@gmail.com";
-// 	const password = await hashPassword("vitoria123");
-// 	const isAdmin = false;
-// 	return {username, email, password, isAdmin};
-// }
-
-// async function createLoginUser() {
-// 	const adminUser = await createAdminUser();
-// 	const commonUser = await createCommonUser();
-
-// 	return [adminUser, commonUser];
-// }
 
 const getLogin = async (req, res) => {
 	const user = req.user;
-	// console.log(req.user)
 	return res.json(user);
 };
 
 const autenticate = async (req, res) => {
-	// para fins de teste, iniciando de 2 usuários com as senhas criptografadas
-	// const loginUsers = await createLoginUser();
-
 	const {email, password} = req.body;
 
 	const error = "Usuário e/ou senha inválidos!";
@@ -98,9 +55,6 @@ const autenticate = async (req, res) => {
 	//
 	//
 	//
-	console.log();
-	console.log();
-	console.log();
 	//
 	//
 	//
@@ -120,10 +74,6 @@ const autenticate = async (req, res) => {
 			return res.status(400).json({error});
 		}
 
-		//
-		//
-		//
-		//
 		try {
 			const userWithoutPassword = {
 				email: user.email,

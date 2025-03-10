@@ -44,7 +44,6 @@ const createActivity = (req, res) => {
 const getAllActivities = (req, res) => {
 	activityDb.readAllData((err, data) => {
 		// vendo o usuario atual
-		// console.log(req.user)
 		if (err) {
 			return res
 				.status(500)
