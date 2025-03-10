@@ -1,6 +1,7 @@
 const comparePassword = require("../utils/comparePassword");
 
 const db = require("../db");
+const activityDb = require("../activityDb");
 
 const {SECRET_KEY} = require("../config");
 const jwt = require("jsonwebtoken");
@@ -64,16 +65,46 @@ const autenticate = async (req, res) => {
 		return res.status(400).json({error});
 	}
 
-	// // Procura a existência de um usuário e senha em loginUsers
-	// const foundUser = loginUsers.filter(
-	// 	user => user.username === username // && user.password === password
-	// );
-	// if (foundUser.length === 0) {
-	// 	res.cookie("session_id", "", {expires: new Date(0)});
-	// 	return res.status(400).json({error});
-	// }
-
 	const dbInstance = db();
+
+	//
+	//
+	//
+	//
+
+	// Obtém todos os dados do banco de dados
+	dbInstance.readAllData((err, data) => {
+		if (err) {
+			return res.status(500).json({error: "Erro ao acessar o banco de dados"});
+		}
+
+		// Exibe o banco de dados inteiro
+		console.log("Banco de dados dos usuarios:", data);
+	});
+
+	// Obtém todos os dados do banco de dados de atividade
+	const activity = activityDb();
+
+	activity.readAllData((err, data) => {
+		if (err) {
+			return res.status(500).json({error: "Erro ao acessar o banco de dados"});
+		}
+
+		// Exibe o banco de dados inteiro
+		console.log("Banco de dados das atividades:", data);
+	});
+	//
+	//
+	//
+	//
+	//
+	console.log();
+	console.log();
+	console.log();
+	//
+	//
+	//
+	//
 
 	dbInstance.get(`user_${email}`, async (err, userData) => {
 		if (err || !userData) {
@@ -89,6 +120,10 @@ const autenticate = async (req, res) => {
 			return res.status(400).json({error});
 		}
 
+		//
+		//
+		//
+		//
 		try {
 			const userWithoutPassword = {
 				email: user.email,
@@ -96,6 +131,7 @@ const autenticate = async (req, res) => {
 				isAdmin: user.isAdmin
 			};
 
+			// aq ele é passado informações q podem ser pegas no req.user
 			const sessionToken = await jwt.sign(
 				{user: userWithoutPassword},
 				SECRET_KEY

@@ -5,10 +5,12 @@ const cookieParser = require("cookie-parser");
 const permissionVerify = require("./routes/permissionVerify");
 
 const {createInitialUsers} = require("./controllers/userController");
+const createActivityPage = require("./pages/createActivity");
+const activityRouter = require("./pages/activities"); // Corrija o caminho se necessário
 
-const db = require("./db")
+const db = require("./db");
 // Chama a função para criar os usuários iniciais
-db().onOpen(createInitialUsers)
+db().onOpen(createInitialUsers);
 
 // Middleware para analisar o corpo das requisições JSON
 app.use(express.json());
@@ -29,14 +31,18 @@ app.get("/createUser", (req, res) => {
 const routes = require("./routes");
 app.use("/", routes);
 
-app.use(permissionVerify);
+app.use(permissionVerify.permissionVerify);
 
 // Página do app
 const appPage = require("./pages/app");
 app.get("/app", appPage);
 
+app.use("/activities", activityRouter); // Certifique-se de que o roteamento está correto
+
+app.get("/createActivity", permissionVerify.adminVerify, (req, res) => {
+	res.send(createActivityPage());
+});
+
 app.listen(port, () => {
 	console.log(`Servidor rodando na porta ${port}`);
 });
-
-

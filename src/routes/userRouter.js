@@ -7,7 +7,8 @@ router.post("/", userController.createUser);
 
 
 // aplica o middlware permissionVeriy em todas as rotas definidas em userRouter.js
-router.use(permissionVerify);
+router.use(permissionVerify.permissionVerify);
+router.use(permissionVerify.adminVerify);
 
 router.get("/", userController.getAllUsers);
 router.put("/:id", userController.updateUser);

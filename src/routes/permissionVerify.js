@@ -28,4 +28,16 @@ function permissionVerify(req, res, next) {
 	});
 }
 
-module.exports = permissionVerify;
+function adminVerify(req, res, next) {
+	// Verifica se o usuário está presente no objeto req (isso significa que o token foi validado)
+	if (!req.user || req.user.isAdmin !== true) {
+		return res
+			.status(403)
+			.json({error: "Sem permissão para realizar esta requisição!"});
+	}
+
+	// Se o usuário for admin, passa para o próximo middleware ou rota
+	next();
+}
+
+module.exports = {permissionVerify, adminVerify};

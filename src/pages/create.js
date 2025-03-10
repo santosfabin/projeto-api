@@ -1,4 +1,3 @@
-// src/pages/create.js
 function createPage() {
 	return `
     <!DOCTYPE html>

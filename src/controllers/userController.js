@@ -2,14 +2,9 @@ const db = require("../db");
 const hashPassword = require("../utils/hashPassword");
 const loginController = require("./loginController");
 
-const error = "Sem permissão para realizar esta requisição!";
 
 // Função para obter todos os usuários
 const getAllUsers = (req, res) => {
-	if (!req.user || req.user.isAdmin !== true) {
-		return res.status(403).json({error});
-	}
-
 	db().readAllData((err, data) => {
 		if (err) {
 			return res.status(500).json({error: "Erro ao buscar usuários"});
@@ -36,7 +31,12 @@ const createUser = async (req, res) => {
 
 		// Criando o novo usuário
 		const hashedPassword = await hashPassword(password);
-		const newUser = {username, email, password: hashedPassword, isAdmin: false};
+		const newUser = {
+			username,
+			email,
+			password: hashedPassword,
+			isAdmin: false
+		};
 
 		// Salva o novo usuário no banco de dados
 		db().put(`user_${email}`, JSON.stringify(newUser), err => {
@@ -94,7 +94,6 @@ const deleteUser = (req, res) => {
 // criação de 2 usuarios
 // Função para criar usuários iniciais (admin e comum)
 const createInitialUsers = async () => {
-
 	const adminEmail = "fabiano@gmail.com";
 	const commonEmail = "vitoria@gmail.com";
 
@@ -102,44 +101,43 @@ const createInitialUsers = async () => {
 
 	// Verifica se o admin já existe
 	db().get(`user_${adminEmail}`, async (err, adminData) => {
-			if (err || !adminData) {
-					const hashedAdminPassword = await hashPassword("fabiano123");
-					const adminUser = {
-							username: "fabiano",
-							email: adminEmail,
-							password: hashedAdminPassword,
-							isAdmin: true
-					};
-					db().put(`user_${adminEmail}`, JSON.stringify(adminUser), err => {
-							if (err) {
-									console.log("Erro ao criar usuário admin:", err);
-							} else {
-									console.log("Usuário admin criado com sucesso!");
-							}
-					});
-			}
+		if (err || !adminData) {
+			const hashedAdminPassword = await hashPassword("fabiano123");
+			const adminUser = {
+				username: "fabiano",
+				email: adminEmail,
+				password: hashedAdminPassword,
+				isAdmin: true
+			};
+			db().put(`user_${adminEmail}`, JSON.stringify(adminUser), err => {
+				if (err) {
+					console.log("Erro ao criar usuário admin:", err);
+				} else {
+					console.log("Usuário admin criado com sucesso!");
+				}
+			});
+		}
 	});
 
 	db().get(`user_${commonEmail}`, async (err, commonData) => {
-			if (err || !commonData) {
-					const hashedCommonPassword = await hashPassword("vitoria123");
-					const commonUser = {
-							username: "vitoria",
-							email: commonEmail,
-							password: hashedCommonPassword,
-							isAdmin: false
-					};
-					db().put(`user_${commonEmail}`, JSON.stringify(commonUser), err => {
-							if (err) {
-									console.log("Erro ao criar usuário comum:", err);
-							} else {
-									console.log("Usuário comum criado com sucesso!");
-							}
-					});
-			}
+		if (err || !commonData) {
+			const hashedCommonPassword = await hashPassword("vitoria123");
+			const commonUser = {
+				username: "vitoria",
+				email: commonEmail,
+				password: hashedCommonPassword,
+				isAdmin: false
+			};
+			db().put(`user_${commonEmail}`, JSON.stringify(commonUser), err => {
+				if (err) {
+					console.log("Erro ao criar usuário comum:", err);
+				} else {
+					console.log("Usuário comum criado com sucesso!");
+				}
+			});
+		}
 	});
 };
-
 
 module.exports = {
 	getAllUsers,
