@@ -96,6 +96,24 @@ const activitiesPageContent = `
             font-weight: bold;
             margin-top: 10px;
         }
+
+        .edit-input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+        }
+
+        .activity-buttons {
+            margin-top: 10px;
+        }
+
+        .activity-buttons button {
+            width: 100px;
+            margin: 5px;
+        }
     </style>
 </head>
 <body>
@@ -157,20 +175,23 @@ const activitiesPageContent = `
 
                             const activityElement = document.createElement('div');
                             activityElement.classList.add('activity');
+                            activityElement.id = \`activity-\${activity.activityId}\`;
                             activityElement.innerHTML = \`
-                                <h3>\${activity.title}</h3>
-                                <p><strong>Descrição:</strong> \${activity.description}</p>
-                                <p><strong>Local:</strong> \${activity.location}</p>
-                                <p><strong>Participantes Máximos:</strong> \${activity.maxParticipants}</p>
-                                <p><strong>Data Limite:</strong> \${new Date(activity.deadline).toLocaleString()}</p>
-                                \${isUserEnrolled
-                                    ? \`<button onclick="unenrollFromActivity('\${activity.activityId}')">Desinscrever-se</button>\`
-                                    : \`<button onclick="enrollInActivity('\${activity.activityId}')">Inscrever-se</button>\`
-                                }
-                                \${isAdmin
-                                    ? \`<button onclick="editActivity('\${activity.activityId}')">Editar</button>\`
-                                    : ''
-                                }
+                                <h3 id="title-\${activity.activityId}">\${activity.title}</h3>
+                                <p><strong>Descrição:</strong> <span id="description-\${activity.activityId}">\${activity.description}</span></p>
+                                <p><strong>Local:</strong> <span id="location-\${activity.activityId}">\${activity.location}</span></p>
+                                <p><strong>Participantes Máximos:</strong> <span id="maxParticipants-\${activity.activityId}">\${activity.maxParticipants}</span></p>
+                                <p><strong>Data Limite:</strong> <span id="deadline-\${activity.activityId}">\${new Date(activity.deadline).toLocaleString()}</span></p>
+                                <div class="activity-buttons">
+                                    \${isUserEnrolled
+                                        ? \`<button onclick="unenrollFromActivity('\${activity.activityId}')">Desinscrever-se</button>\`
+                                        : \`<button onclick="enrollInActivity('\${activity.activityId}')">Inscrever-se</button>\`
+                                    }
+                                    \${isAdmin
+                                        ? \`<button onclick="openEditForm('\${activity.activityId}')">Editar</button>\`
+                                        : ''
+                                    }
+                                </div>
                             \`;
                             activitiesList.appendChild(activityElement);
                         });
@@ -183,7 +204,7 @@ const activitiesPageContent = `
         });
 
         async function enrollInActivity(activityId) {
-            const token = localStorage.getItem('token'); 
+            const token = localStorage.getItem('token');
             const response = await fetch('/createAcvitity/enroll', {
                 method: 'POST',
                 headers: {
@@ -222,6 +243,59 @@ const activitiesPageContent = `
             }
         }
 
+        function openEditForm(activityId) {
+            const titleElement = document.getElementById(\`title-\${activityId}\`);
+            const descriptionElement = document.getElementById(\`description-\${activityId}\`);
+            const locationElement = document.getElementById(\`location-\${activityId}\`);
+            const maxParticipantsElement = document.getElementById(\`maxParticipants-\${activityId}\`);
+            const deadlineElement = document.getElementById(\`deadline-\${activityId}\`);
+
+            // Substitui os elementos com inputs
+            titleElement.innerHTML = \`<input class="edit-input" id="edit-title-\${activityId}" value="\${titleElement.innerText}" />\`;
+            descriptionElement.innerHTML = \`<input class="edit-input" id="edit-description-\${activityId}" value="\${descriptionElement.innerText}" />\`;
+            locationElement.innerHTML = \`<input class="edit-input" id="edit-location-\${activityId}" value="\${locationElement.innerText}" />\`;
+            maxParticipantsElement.innerHTML = \`<input class="edit-input" id="edit-maxParticipants-\${activityId}" value="\${maxParticipantsElement.innerText}" />\`;
+            deadlineElement.innerHTML = \`<input class="edit-input" type="datetime-local" id="edit-deadline-\${activityId}" value="\${new Date(deadlineElement.innerText).toISOString().slice(0, 16)}" />\`;
+
+            const activityButtons = document.querySelector(\`#activity-\${activityId} .activity-buttons\`);
+            activityButtons.innerHTML = \`
+                <button onclick="saveEdit('\${activityId}')">Salvar alterações</button>
+                <button onclick="cancelEdit('\${activityId}')">Cancelar</button>
+            \`;
+        }
+
+        function cancelEdit(activityId) {
+            location.reload(); // Recarrega a página para reverter as edições
+        }
+
+        async function saveEdit(activityId) {
+            const updatedActivity = {
+                title: document.getElementById(\`edit-title-\${activityId}\`).value,
+                description: document.getElementById(\`edit-description-\${activityId}\`).value,
+                location: document.getElementById(\`edit-location-\${activityId}\`).value,
+                maxParticipants: document.getElementById(\`edit-maxParticipants-\${activityId}\`).value,
+                deadline: document.getElementById(\`edit-deadline-\${activityId}\`).value
+            };
+
+            const token = localStorage.getItem('token');
+            const response = await fetch('/createAcvitity/editActivity', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({ activityId, ...updatedActivity })
+            });
+
+            const data = await response.json();
+
+            if (data.error) {
+                document.getElementById('error-message').innerText = data.error;
+            } else {
+                alert('Atividade editada com sucesso!');
+                window.location.reload();
+            }
+        }
     </script>
 </body>
 </html>

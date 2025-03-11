@@ -15,6 +15,9 @@ router.post("/enroll", activityController.enrollInActivity);
 // Rota para desinscrever-se de uma atividade
 router.post("/unenroll", activityController.unenrollFromActivity);
 
+// Rota para desinscrever-se de uma atividade
+router.post("/editActivity", activityController.editActivity);
+
 // Rota para criar uma nova atividade (somente admin)
 router.post(
 	"/",

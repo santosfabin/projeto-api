@@ -50,9 +50,7 @@ const autenticate = async (req, res) => {
 		// Exibe o banco de dados inteiro
 		console.log("Banco de dados das atividades:", data);
 	});
-	//
-	//
-	//
+
 	//
 	//
 	//
