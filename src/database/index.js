@@ -12,7 +12,7 @@ class Database {
 				this._openCallbacks.forEach(cb => cb(e));
 				this._openCallbacks = []; // Limpa as callbacks
 				return;
-			} 	
+			}
 
 			// // apagando o banco de dados
 			// this.db.clear(() => {
@@ -20,7 +20,6 @@ class Database {
 			// 	this._openCallbacks.forEach(cb => cb());
 			// 	this._openCallbacks = []; // Limpa as callbacks
 			// });
-
 
 			// sem apagar o banco de dados
 			this._openCallbacks.forEach(cb => cb());
@@ -90,6 +89,14 @@ class Database {
 		}
 
 		this.db.get(key, callback);
+	}
+
+	del(key, callback) {
+		if (!this.db) {
+			return callback(new Error("O banco de dados não está aberto"));
+		}
+
+		this.db.del(key, callback); // Método 'del' da RocksDB
 	}
 
 	onOpen(callback) {

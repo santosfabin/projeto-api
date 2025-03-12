@@ -111,7 +111,6 @@ const activitiesPageContent = `
         }
 
         .activity-buttons button {
-            width: 100px;
             margin: 5px;
         }
     </style>
@@ -124,7 +123,7 @@ const activitiesPageContent = `
     <p>
         <a href="/app">Voltar para a página inicial</a>
     </p>
-    <div id="error-message"></div> <!-- Error message div -->
+    <div id="error-message"></div>
 
     <script>
         document.addEventListener("DOMContentLoaded", async function() {
@@ -180,7 +179,13 @@ const activitiesPageContent = `
                                 <h3 id="title-\${activity.activityId}">\${activity.title}</h3>
                                 <p><strong>Descrição:</strong> <span id="description-\${activity.activityId}">\${activity.description}</span></p>
                                 <p><strong>Local:</strong> <span id="location-\${activity.activityId}">\${activity.location}</span></p>
-                                <p><strong>Participantes Máximos:</strong> <span id="maxParticipants-\${activity.activityId}">\${activity.maxParticipants}</span></p>
+                                <p><strong>Participantes:</strong> \${activity.participants.length}/<span id="maxParticipants-\${activity.activityId}">\${activity.maxParticipants}</span></p>
+                                \${isAdmin 
+                                    ? \`<p><strong>Lista de Participantes:</strong><ul>
+                                            \${activity.participants.map(participant => \`<li>\${participant}</li>\`).join('')}
+                                        </ul></p>\`
+                                    : ''
+                                }
                                 <p><strong>Data Limite:</strong> <span id="deadline-\${activity.activityId}">\${new Date(activity.deadline).toLocaleString()}</span></p>
                                 <div class="activity-buttons">
                                     \${isUserEnrolled
@@ -188,11 +193,12 @@ const activitiesPageContent = `
                                         : \`<button onclick="enrollInActivity('\${activity.activityId}')">Inscrever-se</button>\`
                                     }
                                     \${isAdmin
-                                        ? \`<button onclick="openEditForm('\${activity.activityId}')">Editar</button>\`
+                                        ? \`<button onclick="openEditForm('\${activity.activityId}')">Editar</button><button onclick="deleteActivity('\${activity.activityId}')">Excluir</button>\`
                                         : ''
                                     }
                                 </div>
                             \`;
+
                             activitiesList.appendChild(activityElement);
                         });
                     }
@@ -204,12 +210,10 @@ const activitiesPageContent = `
         });
 
         async function enrollInActivity(activityId) {
-            const token = localStorage.getItem('token');
             const response = await fetch('/createAcvitity/enroll', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token
                 },
                 body: JSON.stringify({ activityId })
             });
@@ -224,12 +228,10 @@ const activitiesPageContent = `
         }
 
         async function unenrollFromActivity(activityId) {
-            const token = localStorage.getItem('token');
             const response = await fetch('/createAcvitity/unenroll', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token
                 },
                 body: JSON.stringify({ activityId })
             });
@@ -277,12 +279,10 @@ const activitiesPageContent = `
                 deadline: document.getElementById(\`edit-deadline-\${activityId}\`).value
             };
 
-            const token = localStorage.getItem('token');
             const response = await fetch('/createAcvitity/editActivity', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token
                 },
                 body: JSON.stringify({ activityId, ...updatedActivity })
             });
@@ -293,6 +293,25 @@ const activitiesPageContent = `
                 document.getElementById('error-message').innerText = data.error;
             } else {
                 alert('Atividade editada com sucesso!');
+                window.location.reload();
+            }
+        }
+
+        async function deleteActivity(activityId) {
+            const response = await fetch('/createAcvitity/deleteActivity', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ activityId })
+            });
+
+            const data = await response.json();
+
+            if (data.error) {
+                document.getElementById('error-message').innerText = data.error;
+            } else {
+                alert('Atividade excluída com sucesso!');
                 window.location.reload();
             }
         }

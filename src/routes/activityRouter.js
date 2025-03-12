@@ -15,20 +15,14 @@ router.post("/enroll", activityController.enrollInActivity);
 // Rota para desinscrever-se de uma atividade
 router.post("/unenroll", activityController.unenrollFromActivity);
 
-// Rota para desinscrever-se de uma atividade
+router.use(permissionVerify.adminVerify);
+// Rota para editar-se de uma atividade
 router.post("/editActivity", activityController.editActivity);
 
-// Rota para criar uma nova atividade (somente admin)
-router.post(
-	"/",
-	permissionVerify.adminVerify,
-	activityController.createActivity
-);
+// Rota para deletar de uma atividade
+router.delete("/deleteActivity", activityController.deleteActivity);
 
-// Função para remover atividades expiradas (você pode chamar essa função periodicamente, talvez em um cron job)
-router.delete("/remove-expired", permissionVerify.adminVerify, (req, res) => {
-	activityController.removeExpiredActivities();
-	res.status(200).json({message: "Atividades expiradas removidas com sucesso"});
-});
+// Rota para criar uma nova atividade (somente admin)
+router.post("/", activityController.createActivity);
 
 module.exports = router;

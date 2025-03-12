@@ -42,48 +42,53 @@ const createActivity = (req, res) => {
 
 // Função para editar uma atividade (somente admin)
 const editActivity = (req, res) => {
-	const { activityId, title, description, location, maxParticipants, deadline } = req.body;
-	
+	const {activityId, title, description, location, maxParticipants, deadline} =
+		req.body;
+
 	if (!activityId) {
-			return res.status(400).json({ error: "O ID da atividade é obrigatório!" });
+		return res.status(400).json({error: "O ID da atividade é obrigatório!"});
 	}
-	
+
 	activityDb.readAllData((err, data) => {
+		if (err) {
+			return res
+				.status(500)
+				.json({error: "Erro ao acessar o banco de dados de atividades"});
+		}
+
+		const activityIndex = data.findIndex(
+			item => JSON.parse(item.value).activityId === activityId
+		);
+		if (activityIndex === -1) {
+			return res.status(404).json({error: "Atividade não encontrada"});
+		}
+
+		let activityObj = JSON.parse(data[activityIndex].value);
+
+		// Atualiza apenas os campos fornecidos
+		if (title) activityObj.title = title;
+		if (description) activityObj.description = description;
+		if (location) activityObj.location = location;
+		if (maxParticipants) activityObj.maxParticipants = maxParticipants;
+		if (deadline) {
+			const activityDeadline = new Date(deadline);
+			if (isNaN(activityDeadline.getTime())) {
+				return res.status(400).json({error: "Data limite inválida!"});
+			}
+			activityObj.deadline = deadline;
+		}
+
+		// Atualiza a atividade no banco de dados
+		activityDb.put(activityId, JSON.stringify(activityObj), err => {
 			if (err) {
-					return res.status(500).json({ error: "Erro ao acessar o banco de dados de atividades" });
+				return res.status(500).json({error: "Erro ao atualizar a atividade"});
 			}
-			
-			const activityIndex = data.findIndex(item => JSON.parse(item.value).activityId === activityId);
-			if (activityIndex === -1) {
-					return res.status(404).json({ error: "Atividade não encontrada" });
-			}
-			
-			let activityObj = JSON.parse(data[activityIndex].value);
-			
-			// Atualiza apenas os campos fornecidos
-			if (title) activityObj.title = title;
-			if (description) activityObj.description = description;
-			if (location) activityObj.location = location;
-			if (maxParticipants) activityObj.maxParticipants = maxParticipants;
-			if (deadline) {
-					const activityDeadline = new Date(deadline);
-					if (isNaN(activityDeadline.getTime())) {
-							return res.status(400).json({ error: "Data limite inválida!" });
-					}
-					activityObj.deadline = deadline;
-			}
-			
-			// Atualiza a atividade no banco de dados
-			activityDb.put(activityId, JSON.stringify(activityObj), err => {
-					if (err) {
-							return res.status(500).json({ error: "Erro ao atualizar a atividade" });
-					}
-					
-					res.status(200).json({
-							message: "Atividade atualizada com sucesso!",
-							activity: activityObj
-					});
+
+			res.status(200).json({
+				message: "Atividade atualizada com sucesso!",
+				activity: activityObj
 			});
+		});
 	});
 };
 
@@ -219,24 +224,45 @@ const unenrollFromActivity = (req, res) => {
 				return res.status(500).json({error: "Erro ao atualizar a atividade"});
 			}
 
-			res
-				.status(200)
-				.json({
-					message: "Desinscrição realizada com sucesso!",
-					activity: activityObj
-				});
+			res.status(200).json({
+				message: "Desinscrição realizada com sucesso!",
+				activity: activityObj
+			});
 		});
 	});
 };
 
 // Função para remover atividades expiradas
-const removeExpiredActivities = () => {
-	const currentDate = new Date();
-	const activitiesBeforeExpiration = activityDb.filter(
-		activity => activity.deadline > currentDate
-	);
-	activityDb.length = 0; // Limpa a lista
-	activityDb.push(...activitiesBeforeExpiration); // Adiciona as atividades válidas
+const deleteActivity = (req, res) => {
+	const {activityId} = req.body;
+
+	if (!activityId) {
+		return res.status(400).json({error: "O ID da atividade é obrigatório!"});
+	}
+
+	activityDb.readAllData((err, data) => {
+		if (err) {
+			return res
+				.status(500)
+				.json({error: "Erro ao acessar o banco de dados de atividades"});
+		}
+
+		const activityIndex = data.findIndex(
+			item => JSON.parse(item.value).activityId === activityId
+		);
+		if (activityIndex === -1) {
+			return res.status(404).json({error: "Atividade não encontrada"});
+		}
+
+		// Remove a atividade do banco de dados
+		activityDb.del(activityId, err => {
+			if (err) {
+				return res.status(500).json({error: "Erro ao excluir a atividade"});
+			}
+
+			res.status(200).json({message: "Atividade excluída com sucesso!"});
+		});
+	});
 };
 
 module.exports = {
@@ -244,6 +270,6 @@ module.exports = {
 	getAllActivities,
 	enrollInActivity,
 	unenrollFromActivity,
-	removeExpiredActivities,
+	deleteActivity,
 	editActivity
 };
